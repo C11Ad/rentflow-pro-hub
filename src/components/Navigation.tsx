@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LogOut, User, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -11,23 +11,7 @@ import logo from "@/assets/cribhub-logo.png";
 export const Navigation = () => {
   const { user, userRole, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const handleNavClick = (sectionId: string, closeMobile?: boolean) => {
-    if (closeMobile) closeMobileMenu();
-    
-    // If not on home page, navigate to home with hash
-    if (location.pathname !== "/") {
-      navigate(`/#${sectionId}`);
-    } else {
-      // Scroll to section on same page
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -43,7 +27,7 @@ export const Navigation = () => {
 
   const NavigationLinks = ({ mobile = false }: { mobile?: boolean }) => (
     <>
-      {/* Public search - always visible */}
+      {/* Public navigation links */}
       <NavLink 
         to="/search" 
         className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md' : ''}`}
@@ -52,22 +36,44 @@ export const Navigation = () => {
       >
         Find Property
       </NavLink>
+      
       {!user && (
         <>
-          <button 
-            onClick={() => handleNavClick("about", mobile)}
-            className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors text-left ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md w-full' : ''}`}
+          <NavLink 
+            to="/features" 
+            className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md' : ''}`}
+            activeClassName="text-accent"
+            onClick={mobile ? closeMobileMenu : undefined}
+          >
+            Features
+          </NavLink>
+          <NavLink 
+            to="/testimonials" 
+            className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md' : ''}`}
+            activeClassName="text-accent"
+            onClick={mobile ? closeMobileMenu : undefined}
+          >
+            Testimonials
+          </NavLink>
+          <NavLink 
+            to="/about" 
+            className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md' : ''}`}
+            activeClassName="text-accent"
+            onClick={mobile ? closeMobileMenu : undefined}
           >
             About Us
-          </button>
-          <button 
-            onClick={() => handleNavClick("contact", mobile)}
-            className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors text-left ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md w-full' : ''}`}
+          </NavLink>
+          <NavLink 
+            to="/contact" 
+            className={`text-sm font-semibold text-muted-foreground hover:text-accent transition-colors ${mobile ? 'block py-3 px-4 hover:bg-muted/50 rounded-md' : ''}`}
+            activeClassName="text-accent"
+            onClick={mobile ? closeMobileMenu : undefined}
           >
             Contact
-          </button>
+          </NavLink>
         </>
       )}
+      
       {user && (
         <>
           {/* Property Manager & Admin Navigation */}

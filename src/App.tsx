@@ -31,6 +31,10 @@ const BrowseUnits = lazy(() => import("./pages/BrowseUnits"));
 const ApplyForUnit = lazy(() => import("./pages/ApplyForUnit"));
 const RentalApplications = lazy(() => import("./pages/RentalApplications"));
 const PropertySearch = lazy(() => import("./pages/PropertySearch"));
+const Features = lazy(() => import("./pages/Features"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Testimonials = lazy(() => import("./pages/Testimonials"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Configure React Query with enhanced defaults for reliability
@@ -68,6 +72,10 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/search" element={<PropertySearch />} />
+                  <Route path="/features" element={<Features />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/testimonials" element={<Testimonials />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route 
