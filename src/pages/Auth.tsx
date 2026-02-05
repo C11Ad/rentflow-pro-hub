@@ -502,6 +502,7 @@ const Auth = () => {
                           required
                           disabled={loading}
                           autoFocus
+                          autoComplete="email"
                         />
                       </div>
                       <Button type="submit" className="w-full" disabled={loading}>
@@ -553,12 +554,12 @@ const Auth = () => {
                           onClick={() => setLoginRole(role.value as typeof loginRole)}
                           className={`flex flex-col items-center p-3 rounded-lg border-2 transition-all ${
                             loginRole === role.value
-                              ? `bg-${role.color}/10 border-${role.color} shadow-md`
-                              : `bg-${role.color}/5 border-${role.color}/10 hover:border-${role.color}/30`
+                              ? "bg-primary/10 border-primary shadow-md"
+                              : "bg-muted/50 border-border hover:border-primary/30"
                           }`}
                         >
-                          <role.icon className={`h-5 w-5 mb-1 ${loginRole === role.value ? `text-${role.color}` : "text-muted-foreground"}`} />
-                          <span className={`text-xs font-medium ${loginRole === role.value ? `text-${role.color}` : "text-foreground"}`}>{role.label}</span>
+                          <role.icon className={`h-5 w-5 mb-1 ${loginRole === role.value ? "text-primary" : "text-muted-foreground"}`} />
+                          <span className={`text-xs font-medium ${loginRole === role.value ? "text-primary" : "text-foreground"}`}>{role.label}</span>
                         </button>
                       ))}
                     </div>
@@ -575,6 +576,7 @@ const Auth = () => {
                         onChange={(e) => setLoginEmail(e.target.value)}
                         required
                         disabled={loading}
+                        autoComplete="email"
                       />
                     </div>
                     <div className="space-y-2">
@@ -596,6 +598,7 @@ const Auth = () => {
                         onChange={(e) => setLoginPassword(e.target.value)}
                         required
                         disabled={loading}
+                        autoComplete="current-password"
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
@@ -625,6 +628,7 @@ const Auth = () => {
                           required
                           disabled={loading}
                           autoFocus
+                          autoComplete="name"
                         />
                       </div>
                       <div className="space-y-2">
@@ -637,6 +641,7 @@ const Auth = () => {
                           onChange={(e) => setSignupEmail(e.target.value)}
                           required
                           disabled={loading}
+                          autoComplete="email"
                         />
                       </div>
                       <div className="space-y-2">
@@ -649,6 +654,7 @@ const Auth = () => {
                           onChange={(e) => setSignupPassword(e.target.value)}
                           required
                           disabled={loading}
+                          autoComplete="new-password"
                         />
                         <PasswordStrengthIndicator password={signupPassword} />
                       </div>
@@ -697,6 +703,7 @@ const Auth = () => {
                           value={signupPhone}
                           onChange={(e) => setSignupPhone(e.target.value)}
                           disabled={loading}
+                          autoComplete="tel"
                         />
                       </div>
 
