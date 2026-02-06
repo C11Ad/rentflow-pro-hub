@@ -301,7 +301,7 @@ export const generatePaymentReceipt = async (
   
   <div class="receipt-amount">
     <div class="label">Amount Paid</div>
-    <div class="value">${symbol} ${receiptData.amount.toLocaleString()}</div>
+    <div class="value">${symbol} ${receiptData.amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</div>
   </div>
   
   <div class="receipt-body">
@@ -519,6 +519,14 @@ export const generateReceiptPdf = async (
   };
   const symbol = currencySymbols[receiptData.currency] || receiptData.currency;
 
+  // Helper function to format currency amounts properly (e.g., GH₵ 5,000.00)
+  const formatCurrency = (amount: number): string => {
+    const parts = amount.toFixed(2).split(".");
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const decimalPart = parts[1];
+    return `${symbol} ${integerPart}.${decimalPart}`;
+  };
+
   // Helper function to add a row with label and value
   const addDetailRow = (label: string, value: string, isLast = false) => {
     // Background alternating
@@ -615,7 +623,7 @@ export const generateReceiptPdf = async (
   pdf.setFontSize(28);
   pdf.setTextColor(37, 99, 235);
   pdf.setFont("helvetica", "bold");
-  pdf.text(`${symbol} ${receiptData.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, margin + 10, yPosition + 27);
+  pdf.text(formatCurrency(receiptData.amount), margin + 10, yPosition + 27);
   pdf.setFont("helvetica", "normal");
   
   // Currency label on right
