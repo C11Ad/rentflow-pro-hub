@@ -40,24 +40,32 @@ export const PaymentReceiptButton = ({
 }: PaymentReceiptButtonProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const getReceiptData = () => ({
-    receiptNumber: payment.reference_number || `RCP-${payment.id.slice(0, 8).toUpperCase()}`,
-    tenantName: payment.payer_name || tenantName,
-    propertyAddress,
-    unitNumber,
-    amount: payment.amount,
-    currency: payment.currency,
-    paymentMethod: payment.payment_method?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "N/A",
-    paymentDate: new Date(payment.payment_date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-    description: payment.notes || "Rent Payment",
-    landlordName,
-  });
+  const getReceiptData = () => {
+    const paymentDateObj = new Date(payment.payment_date);
+    const monthYear = paymentDateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    
+    return {
+      receiptNumber: payment.reference_number || `RCP-${payment.id.slice(0, 8).toUpperCase()}`,
+      tenantName: payment.payer_name || tenantName,
+      propertyAddress,
+      unitNumber,
+      amount: payment.amount,
+      currency: payment.currency,
+      paymentMethod: payment.payment_method?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "N/A",
+      paymentDate: paymentDateObj.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      description: payment.notes || "Monthly Rent Payment",
+      landlordName,
+      transactionId: payment.id.toUpperCase(),
+      paymentPeriod: monthYear,
+    };
+  };
 
   const handleGeneratePdf = async () => {
     setIsGenerating(true);
