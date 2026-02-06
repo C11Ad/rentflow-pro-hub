@@ -481,7 +481,7 @@ const addPdfFooter = (pdf: jsPDF, pageWidth: number, pageHeight: number, documen
   pdf.text(`Page ${currentPage} of ${pageCount}`, pageWidth - 20, footerY + 13, { align: 'right' });
 };
 
-// Generate Payment Receipt PDF
+// Generate Payment Receipt PDF with enhanced professional layout
 export const generateReceiptPdf = async (
   receiptData: {
     receiptNumber: string;
@@ -494,6 +494,8 @@ export const generateReceiptPdf = async (
     paymentDate: string;
     description: string;
     landlordName?: string;
+    transactionId?: string;
+    paymentPeriod?: string;
   }
 ): Promise<jsPDF> => {
   const pdf = new jsPDF({
@@ -504,7 +506,7 @@ export const generateReceiptPdf = async (
 
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 30;
+  const margin = 25;
   const contentWidth = pageWidth - (margin * 2);
   let yPosition = margin;
 
@@ -517,105 +519,202 @@ export const generateReceiptPdf = async (
   };
   const symbol = currencySymbols[receiptData.currency] || receiptData.currency;
 
+  // Helper function to add a row with label and value
+  const addDetailRow = (label: string, value: string, isLast = false) => {
+    // Background alternating
+    pdf.setFontSize(10);
+    pdf.setTextColor(80, 80, 80);
+    pdf.text(label, margin + 5, yPosition);
+    pdf.setTextColor(30, 30, 30);
+    pdf.setFont("helvetica", "bold");
+    // Handle long values by wrapping
+    const maxValueWidth = contentWidth - 80;
+    const lines = pdf.splitTextToSize(value, maxValueWidth);
+    pdf.text(lines, pageWidth - margin - 5, yPosition, { align: 'right' });
+    pdf.setFont("helvetica", "normal");
+    yPosition += 4;
+    if (!isLast) {
+      pdf.setDrawColor(230, 230, 230);
+      pdf.setLineWidth(0.2);
+      pdf.line(margin + 5, yPosition, pageWidth - margin - 5, yPosition);
+    }
+    yPosition += 8;
+  };
+
   // Load logo
   const logoImg = await loadImageForPdf();
 
-  // Header with logo
+  // === HEADER SECTION ===
+  // Background header bar
+  pdf.setFillColor(37, 99, 235);
+  pdf.rect(0, 0, pageWidth, 50, 'F');
+
+  // Logo on header
   if (logoImg) {
-    const logoHeight = 15;
+    const logoHeight = 12;
     const logoWidth = (logoImg.width / logoImg.height) * logoHeight;
-    pdf.addImage(logoImg, 'PNG', (pageWidth - logoWidth) / 2, yPosition, logoWidth, logoHeight);
-    yPosition += logoHeight + 8;
+    pdf.addImage(logoImg, 'PNG', margin, 10, logoWidth, logoHeight);
   } else {
-    pdf.setFontSize(28);
-    pdf.setTextColor(37, 99, 235);
-    pdf.text('CribHub', pageWidth / 2, yPosition + 10, { align: 'center' });
-    yPosition += 18;
+    pdf.setFontSize(20);
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont("helvetica", "bold");
+    pdf.text('CribHub', margin, 20);
+    pdf.setFont("helvetica", "normal");
   }
 
-  // Title
+  // Title on right side of header
   pdf.setFontSize(22);
-  pdf.setTextColor(30, 58, 95);
-  pdf.text('PAYMENT RECEIPT', pageWidth / 2, yPosition + 5, { align: 'center' });
-  yPosition += 12;
-
-  // Receipt number badge
-  pdf.setFillColor(240, 249, 255);
-  const receiptNumText = `Receipt #${receiptData.receiptNumber}`;
-  const textWidth = pdf.getTextWidth(receiptNumText);
-  pdf.roundedRect((pageWidth - textWidth - 16) / 2, yPosition - 2, textWidth + 16, 10, 3, 3, 'F');
-  pdf.setFontSize(11);
-  pdf.setTextColor(37, 99, 235);
-  pdf.text(receiptNumText, pageWidth / 2, yPosition + 5, { align: 'center' });
-  yPosition += 15;
-
-  // Blue separator
-  pdf.setDrawColor(37, 99, 235);
-  pdf.setLineWidth(1);
-  pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 15;
-
-  // Success badge
-  pdf.setFillColor(16, 185, 129);
-  pdf.roundedRect((pageWidth - 50) / 2, yPosition - 3, 50, 10, 3, 3, 'F');
-  pdf.setFontSize(9);
   pdf.setTextColor(255, 255, 255);
-  pdf.text('✓ PAYMENT SUCCESSFUL', pageWidth / 2, yPosition + 4, { align: 'center' });
+  pdf.setFont("helvetica", "bold");
+  pdf.text('PAYMENT RECEIPT', pageWidth - margin, 20, { align: 'right' });
+  pdf.setFont("helvetica", "normal");
+  
+  // Receipt number under title
+  pdf.setFontSize(10);
+  pdf.setTextColor(220, 230, 255);
+  pdf.text(`Receipt No: ${receiptData.receiptNumber}`, pageWidth - margin, 30, { align: 'right' });
+  
+  // Generation date
+  pdf.setFontSize(8);
+  pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric'
+  })}`, pageWidth - margin, 38, { align: 'right' });
+
+  yPosition = 60;
+
+  // === PAYMENT STATUS BADGE ===
+  pdf.setFillColor(16, 185, 129);
+  pdf.roundedRect(margin, yPosition, 45, 8, 2, 2, 'F');
+  pdf.setFontSize(8);
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.text('PAID', margin + 22.5, yPosition + 5.5, { align: 'center' });
+  pdf.setFont("helvetica", "normal");
+  
+  // Date next to badge
+  pdf.setFontSize(10);
+  pdf.setTextColor(80, 80, 80);
+  pdf.text(receiptData.paymentDate, margin + 50, yPosition + 5.5);
+  
   yPosition += 18;
 
-  // Amount box
-  pdf.setFillColor(37, 99, 235);
-  pdf.roundedRect(margin, yPosition, contentWidth, 30, 4, 4, 'F');
-  pdf.setFontSize(10);
-  pdf.setTextColor(255, 255, 255);
-  pdf.text('Amount Paid', pageWidth / 2, yPosition + 10, { align: 'center' });
-  pdf.setFontSize(24);
-  pdf.text(`${symbol} ${receiptData.amount.toLocaleString()}`, pageWidth / 2, yPosition + 23, { align: 'center' });
-  yPosition += 40;
-
-  // Details section
-  const details = [
-    { label: 'Date & Time', value: receiptData.paymentDate },
-    { label: 'Tenant Name', value: receiptData.tenantName },
-    { label: 'Property', value: receiptData.propertyAddress },
-    { label: 'Unit', value: receiptData.unitNumber },
-    { label: 'Description', value: receiptData.description },
-    { label: 'Payment Method', value: receiptData.paymentMethod },
-  ];
-
-  if (receiptData.landlordName) {
-    details.push({ label: 'Landlord', value: receiptData.landlordName });
-  }
-
-  pdf.setFontSize(11);
-  for (const detail of details) {
-    pdf.setTextColor(100, 100, 100);
-    pdf.text(detail.label, margin, yPosition);
-    pdf.setTextColor(51, 51, 51);
-    pdf.text(detail.value, pageWidth - margin, yPosition, { align: 'right' });
-    yPosition += 3;
-    pdf.setDrawColor(230, 230, 230);
-    pdf.setLineWidth(0.3);
-    pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-    yPosition += 10;
-  }
-
-  // Footer
-  const footerY = pageHeight - 30;
+  // === AMOUNT SECTION ===
+  // Amount box with gradient effect simulation
+  pdf.setFillColor(250, 251, 255);
+  pdf.roundedRect(margin, yPosition, contentWidth, 35, 4, 4, 'F');
   pdf.setDrawColor(37, 99, 235);
-  pdf.setLineWidth(0.5);
-  pdf.line(margin, footerY, pageWidth - margin, footerY);
+  pdf.setLineWidth(1.5);
+  pdf.roundedRect(margin, yPosition, contentWidth, 35, 4, 4, 'S');
   
   pdf.setFontSize(10);
-  pdf.setTextColor(51, 51, 51);
-  pdf.text('CribHub Property Management', pageWidth / 2, footerY + 7, { align: 'center' });
-  pdf.setFontSize(9);
   pdf.setTextColor(100, 100, 100);
-  pdf.text('Thank you for your payment!', pageWidth / 2, footerY + 12, { align: 'center' });
-  pdf.setFontSize(8);
-  pdf.text('This is an official receipt generated by CribHub', pageWidth / 2, footerY + 17, { align: 'center' });
+  pdf.text('Total Amount Paid', margin + 10, yPosition + 12);
+  
+  pdf.setFontSize(28);
   pdf.setTextColor(37, 99, 235);
-  pdf.text('www.cribhub.com | support@cribhub.com', pageWidth / 2, footerY + 22, { align: 'center' });
+  pdf.setFont("helvetica", "bold");
+  pdf.text(`${symbol} ${receiptData.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, margin + 10, yPosition + 27);
+  pdf.setFont("helvetica", "normal");
+  
+  // Currency label on right
+  pdf.setFontSize(9);
+  pdf.setTextColor(120, 120, 120);
+  pdf.text(receiptData.currency, pageWidth - margin - 10, yPosition + 27, { align: 'right' });
+  
+  yPosition += 45;
+
+  // === TENANT INFORMATION SECTION ===
+  pdf.setFillColor(248, 250, 252);
+  pdf.roundedRect(margin, yPosition, contentWidth, 10, 2, 2, 'F');
+  pdf.setFontSize(9);
+  pdf.setTextColor(37, 99, 235);
+  pdf.setFont("helvetica", "bold");
+  pdf.text('TENANT INFORMATION', margin + 5, yPosition + 7);
+  pdf.setFont("helvetica", "normal");
+  yPosition += 16;
+
+  addDetailRow('Name', receiptData.tenantName);
+  addDetailRow('Property Address', receiptData.propertyAddress);
+  addDetailRow('Unit Number', receiptData.unitNumber, true);
+  
+  yPosition += 5;
+
+  // === PAYMENT DETAILS SECTION ===
+  pdf.setFillColor(248, 250, 252);
+  pdf.roundedRect(margin, yPosition, contentWidth, 10, 2, 2, 'F');
+  pdf.setFontSize(9);
+  pdf.setTextColor(37, 99, 235);
+  pdf.setFont("helvetica", "bold");
+  pdf.text('PAYMENT DETAILS', margin + 5, yPosition + 7);
+  pdf.setFont("helvetica", "normal");
+  yPosition += 16;
+
+  addDetailRow('Description', receiptData.description);
+  addDetailRow('Payment Method', receiptData.paymentMethod);
+  
+  if (receiptData.paymentPeriod) {
+    addDetailRow('Payment Period', receiptData.paymentPeriod);
+  }
+  
+  if (receiptData.transactionId) {
+    addDetailRow('Transaction ID', receiptData.transactionId);
+  }
+  
+  if (receiptData.landlordName) {
+    addDetailRow('Landlord/Property Owner', receiptData.landlordName, true);
+  }
+
+  yPosition += 10;
+
+  // === QR CODE PLACEHOLDER / VERIFICATION SECTION ===
+  pdf.setFillColor(250, 250, 250);
+  pdf.roundedRect(margin, yPosition, contentWidth, 20, 3, 3, 'F');
+  pdf.setDrawColor(200, 200, 200);
+  pdf.setLineWidth(0.3);
+  pdf.roundedRect(margin, yPosition, contentWidth, 20, 3, 3, 'S');
+  
+  pdf.setFontSize(8);
+  pdf.setTextColor(120, 120, 120);
+  pdf.text('For verification, reference this receipt number:', margin + 5, yPosition + 8);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(37, 99, 235);
+  pdf.text(receiptData.receiptNumber, margin + 5, yPosition + 15);
+  pdf.setFont("helvetica", "normal");
+  
+  // Verification text on right
+  pdf.setTextColor(100, 100, 100);
+  pdf.text('This receipt is electronically generated', pageWidth - margin - 5, yPosition + 12, { align: 'right' });
+
+  // === FOOTER ===
+  const footerY = pageHeight - 35;
+  
+  // Footer line
+  pdf.setDrawColor(37, 99, 235);
+  pdf.setLineWidth(0.8);
+  pdf.line(margin, footerY, pageWidth - margin, footerY);
+  
+  // Thank you message
+  pdf.setFontSize(11);
+  pdf.setTextColor(37, 99, 235);
+  pdf.setFont("helvetica", "bold");
+  pdf.text('Thank you for your payment!', pageWidth / 2, footerY + 8, { align: 'center' });
+  pdf.setFont("helvetica", "normal");
+  
+  // Company info
+  pdf.setFontSize(9);
+  pdf.setTextColor(80, 80, 80);
+  pdf.text('CribHub Property Management Platform', pageWidth / 2, footerY + 15, { align: 'center' });
+  
+  pdf.setFontSize(8);
+  pdf.setTextColor(37, 99, 235);
+  pdf.text('www.cribhub.com  •  support@cribhub.com', pageWidth / 2, footerY + 21, { align: 'center' });
+  
+  // Legal note
+  pdf.setFontSize(7);
+  pdf.setTextColor(150, 150, 150);
+  pdf.text('This is an official payment receipt. Please retain for your records.', pageWidth / 2, footerY + 28, { align: 'center' });
 
   return pdf;
 };
