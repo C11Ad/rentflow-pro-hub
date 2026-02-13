@@ -52,41 +52,47 @@ serve(async (req) => {
     // Generate contract using Lovable AI
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
     
-    const prompt = `Generate a professional rental agreement contract with CribHub branding for the following property:
+    const prompt = `Generate a professional residential rental agreement contract for the following property.
 
-═══════════════════════════════════════════════════════════════
-                         CRIBHUB
-              Property Management Platform
-═══════════════════════════════════════════════════════════════
+FORMATTING RULES (CRITICAL):
+- Use UPPERCASE for section headings (e.g., "SECTION 1: PREMISES")
+- Number all sections sequentially (1, 2, 3...)
+- Use sub-numbering for clauses (1.1, 1.2, 2.1, etc.)
+- Do NOT use any markdown formatting (no #, **, *, bullet symbols)
+- Use plain text only with clear paragraph spacing
+- Use "---" on its own line between major sections
+- Format currency amounts with commas and two decimal places
+- Keep lines under 90 characters for readability
 
+DOCUMENT HEADER:
+CRIBHUB PROPERTY MANAGEMENT
+RESIDENTIAL RENTAL AGREEMENT
+Facilitated by CribHub Property Management Platform
+
+PROPERTY AND PARTY DETAILS:
 Property Address: ${property_address}
-Monthly Rent: ${rent_currency} ${monthly_rent}
+Monthly Rent: ${rent_currency} ${monthly_rent.toLocaleString(undefined, { minimumFractionDigits: 2 })}
 Landlord: ${landlord?.full_name} (${landlord?.email})
 Tenant: ${tenant?.full_name} (${tenant?.email})
-Start Date: ${new Date().toLocaleDateString()}
+Commencement Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
 Lease Duration: 12 months
 
-IMPORTANT: This contract is being generated through CribHub Property Management platform. 
-Include "Facilitated by CribHub Property Management" in the document header.
+Include these sections in order:
+1. PARTIES TO THE AGREEMENT - Full details of landlord and tenant
+2. PREMISES - Property address and description
+3. TERM OF LEASE - Start date, duration, renewal terms
+4. RENT AND PAYMENT - Amount, due dates, late fees, accepted methods
+5. SECURITY DEPOSIT - Amount, conditions for return, timeline
+6. TENANT OBLIGATIONS - Care of property, restrictions, compliance
+7. LANDLORD OBLIGATIONS - Maintenance, repairs, habitability
+8. MAINTENANCE AND REPAIRS - Reporting procedures, responsibilities
+9. TERMINATION AND RENEWAL - Notice periods, conditions
+10. GOVERNING LAW - Applicable jurisdiction
+11. SIGNATURES - Landlord, Tenant, and Witness signature blocks with date lines
 
-Please create a comprehensive rental agreement that includes:
-1. CribHub document header with "RESIDENTIAL RENTAL AGREEMENT"
-2. Parties involved (landlord and tenant details)
-3. Property description and address
-4. Lease term (start date and duration)
-5. Rent amount and payment terms
-6. Security deposit details
-7. Tenant responsibilities
-8. Landlord responsibilities
-9. Maintenance and repairs
-10. Termination clause
-11. Signatures section with spaces for:
-    - Landlord signature and date
-    - Tenant signature and date
-    - Witness signatures (if applicable)
-12. CribHub footer with: "This agreement was facilitated through CribHub Property Management Platform - www.cribhub.com"
-
-Format the contract professionally with proper headings and legal language appropriate for a residential rental agreement.`;
+DOCUMENT FOOTER:
+This agreement was facilitated through CribHub Property Management Platform
+www.cribhub.com | support@cribhub.com`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -99,7 +105,7 @@ Format the contract professionally with proper headings and legal language appro
         messages: [
           {
             role: "system",
-            content: "You are a legal document expert for CribHub Property Management. Generate professional, legally sound contracts that include CribHub branding. Always include 'Facilitated by CribHub' in documents and add the CribHub footer: 'www.cribhub.com | support@cribhub.com'",
+            content: "You are a legal document expert for CribHub Property Management. Generate professional, legally sound contracts using plain text only — no markdown syntax (no #, **, *, etc.). Use UPPERCASE for section headings, numbered sections (1, 2, 3...), and sub-numbered clauses (1.1, 1.2...). Format all currency amounts with commas and two decimal places. Always include CribHub branding in header and footer.",
           },
           {
             role: "user",

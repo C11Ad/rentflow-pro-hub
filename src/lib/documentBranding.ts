@@ -410,18 +410,18 @@ export const generateBrandedPdf = async (
   pdf.text(`Document Type: ${documentType.replace(/_/g, ' ')}  |  Jurisdiction: ${location}  |  Date: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPosition + 7, { align: 'center' });
   yPosition += 20;
 
-  // Content
+  // Content - enhanced rendering with section detection
   pdf.setFontSize(11);
   pdf.setTextColor(51, 51, 51);
   
-  // Split content into lines that fit the page width
-  const lines = pdf.splitTextToSize(content, contentWidth);
+  const rawLines = content.split('\n');
   const lineHeight = 5;
 
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i].trim();
+    
     // Check if we need a new page
     if (yPosition + lineHeight > pageHeight - 40) {
-      // Add page footer before new page
       addPdfFooter(pdf, pageWidth, pageHeight, documentId);
       pdf.addPage();
       yPosition = margin;
@@ -441,9 +441,83 @@ export const generateBrandedPdf = async (
       pdf.setFontSize(11);
       pdf.setTextColor(51, 51, 51);
     }
+
+    // Detect separator lines (---, ===, ___)
+    if (/^[-=_]{3,}$/.test(line)) {
+      yPosition += 3;
+      pdf.setDrawColor(200, 210, 230);
+      pdf.setLineWidth(0.4);
+      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 6;
+      continue;
+    }
+
+    // Skip empty lines but add spacing
+    if (line === '') {
+      yPosition += 3;
+      continue;
+    }
+
+    // Strip markdown bold/italic markers for clean text
+    const cleanLine = line.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1').replace(/^#+\s*/, '');
+
+    // Detect SECTION HEADINGS (all caps lines, or lines starting with "SECTION")
+    const isHeading = /^(SECTION\s+\d|[A-Z][A-Z\s:]{8,})/.test(cleanLine) && cleanLine.length < 80;
     
-    pdf.text(lines[i], margin, yPosition);
-    yPosition += lineHeight;
+    // Detect numbered section headers like "1. PARTIES" or "10. GOVERNING LAW"
+    const isNumberedHeading = /^\d{1,2}\.\s+[A-Z]/.test(cleanLine) && cleanLine === cleanLine.toUpperCase();
+
+    if (isHeading || isNumberedHeading) {
+      yPosition += 4;
+      // Section heading background
+      pdf.setFillColor(240, 245, 255);
+      const headingLines = pdf.splitTextToSize(cleanLine, contentWidth - 10);
+      const headingHeight = headingLines.length * 5 + 6;
+      pdf.roundedRect(margin, yPosition - 4, contentWidth, headingHeight, 1.5, 1.5, 'F');
+      
+      pdf.setFontSize(11);
+      pdf.setTextColor(30, 58, 95);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(headingLines, margin + 5, yPosition + 1);
+      pdf.setFont("helvetica", "normal");
+      yPosition += headingHeight + 3;
+      continue;
+    }
+
+    // Detect sub-clauses (e.g., "1.1", "2.3")
+    const isSubClause = /^\d{1,2}\.\d{1,2}\s/.test(cleanLine);
+    
+    if (isSubClause) {
+      pdf.setFontSize(10);
+      pdf.setTextColor(51, 51, 51);
+      const wrappedLines = pdf.splitTextToSize(cleanLine, contentWidth - 10);
+      for (const wl of wrappedLines) {
+        if (yPosition + lineHeight > pageHeight - 40) {
+          addPdfFooter(pdf, pageWidth, pageHeight, documentId);
+          pdf.addPage();
+          yPosition = margin + 10;
+        }
+        pdf.text(wl, margin + 5, yPosition);
+        yPosition += lineHeight;
+      }
+      yPosition += 1;
+      pdf.setFontSize(11);
+      continue;
+    }
+
+    // Regular content
+    pdf.setFontSize(11);
+    pdf.setTextColor(51, 51, 51);
+    const wrappedLines = pdf.splitTextToSize(cleanLine, contentWidth);
+    for (const wl of wrappedLines) {
+      if (yPosition + lineHeight > pageHeight - 40) {
+        addPdfFooter(pdf, pageWidth, pageHeight, documentId);
+        pdf.addPage();
+        yPosition = margin + 10;
+      }
+      pdf.text(wl, margin, yPosition);
+      yPosition += lineHeight;
+    }
   }
 
   // Add footer to last page
