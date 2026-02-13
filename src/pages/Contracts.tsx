@@ -150,15 +150,17 @@ const Contracts = () => {
       toast.error("Please fill in all required fields");
       return;
     }
+
+    if (new Date(formData.endDate) <= new Date(formData.startDate)) {
+      toast.error("End date must be after start date");
+      return;
+    }
     
     setGenerating(true);
     
     try {
       const selectedUnit = units.find(u => u.id === formData.unitId);
       if (!selectedUnit) throw new Error("Unit not found");
-      
-      // Use user-provided end date
-      const endDate = new Date(formData.endDate);
       
       // Generate contract content using edge function
       const { data: generatedContent, error: genError } = await supabase.functions.invoke("generate-contract", {
@@ -391,7 +393,18 @@ Status: ${contract.status}
                     <Label htmlFor="lease-term">Lease Term (months)</Label>
                     <Select 
                       value={formData.leaseTerm} 
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, leaseTerm: value }))}
+                      onValueChange={(value) => {
+                        setFormData(prev => {
+                          const updated = { ...prev, leaseTerm: value };
+                          if (prev.startDate) {
+                            const start = new Date(prev.startDate);
+                            const end = new Date(start);
+                            end.setMonth(end.getMonth() + parseInt(value));
+                            updated.endDate = end.toISOString().split("T")[0];
+                          }
+                          return updated;
+                        });
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -410,7 +423,18 @@ Status: ${contract.status}
                       id="start-date" 
                       type="date"
                       value={formData.startDate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                      onChange={(e) => {
+                        setFormData(prev => {
+                          const updated = { ...prev, startDate: e.target.value };
+                          if (e.target.value && prev.leaseTerm) {
+                            const start = new Date(e.target.value);
+                            const end = new Date(start);
+                            end.setMonth(end.getMonth() + parseInt(prev.leaseTerm));
+                            updated.endDate = end.toISOString().split("T")[0];
+                          }
+                          return updated;
+                        });
+                      }}
                     />
                   </div>
                   <div>
@@ -419,6 +443,7 @@ Status: ${contract.status}
                       id="end-date" 
                       type="date"
                       value={formData.endDate}
+                      min={formData.startDate || undefined}
                       onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
                     />
                   </div>
