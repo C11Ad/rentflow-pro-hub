@@ -59,6 +59,7 @@ const Contracts = () => {
     rent: "",
     leaseTerm: "12",
     startDate: "",
+    endDate: "",
     specialTerms: ""
   });
 
@@ -145,7 +146,7 @@ const Contracts = () => {
   };
 
   const handleGenerateContract = async () => {
-    if (!formData.unitId || !formData.rent || !formData.startDate) {
+    if (!formData.unitId || !formData.rent || !formData.startDate || !formData.endDate) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -156,10 +157,8 @@ const Contracts = () => {
       const selectedUnit = units.find(u => u.id === formData.unitId);
       if (!selectedUnit) throw new Error("Unit not found");
       
-      // Calculate end date based on lease term
-      const startDate = new Date(formData.startDate);
-      const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + parseInt(formData.leaseTerm));
+      // Use user-provided end date
+      const endDate = new Date(formData.endDate);
       
       // Generate contract content using edge function
       const { data: generatedContent, error: genError } = await supabase.functions.invoke("generate-contract", {
@@ -170,7 +169,7 @@ const Contracts = () => {
           monthlyRent: parseFloat(formData.rent),
           currency: formData.currency,
           startDate: formData.startDate,
-          endDate: endDate.toISOString().split("T")[0],
+          endDate: formData.endDate,
           leaseTerm: `${formData.leaseTerm} months`,
           specialTerms: formData.specialTerms
         }
@@ -186,7 +185,7 @@ const Contracts = () => {
           tenant_id: selectedUnit.tenant_id || user!.id, // Fallback to landlord if no tenant assigned
           unit_id: formData.unitId,
           start_date: formData.startDate,
-          end_date: endDate.toISOString().split("T")[0],
+          end_date: formData.endDate,
           monthly_rent: parseFloat(formData.rent),
           rent_currency: formData.currency,
           status: "draft",
@@ -208,6 +207,7 @@ const Contracts = () => {
         rent: "",
         leaseTerm: "12",
         startDate: "",
+        endDate: "",
         specialTerms: ""
       });
       
@@ -411,6 +411,15 @@ Status: ${contract.status}
                       type="date"
                       value={formData.startDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end-date">End Date</Label>
+                    <Input 
+                      id="end-date" 
+                      type="date"
+                      value={formData.endDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
                     />
                   </div>
                   <div>
