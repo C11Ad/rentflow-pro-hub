@@ -58,7 +58,7 @@ const Index = () => {
                 </h1>
                 
                 <p className="text-lg sm:text-xl text-primary-foreground/90 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-150 leading-relaxed">
-                  Automate rent collection, streamline tenant communication, and gain real-time insights into your portfolio—all from one powerful platform built for landlords and property managers.
+                  Automate rent collection, streamline tenant communication, and gain real-time portfolio insights—backed by expert consultancy for buying, selling, and renting property. One platform for management and advisory.
                 </p>
                 
                 <div className="flex flex-wrap gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 mb-8">
@@ -180,7 +180,7 @@ const Index = () => {
               Ready to Transform Your Property Management?
             </h2>
             <p className="text-xl text-primary-foreground/90 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Join hundreds of property managers who have streamlined their operations and increased revenue with Cribhub. Start your free 14-day trial today—no credit card required.
+              Join hundreds of property professionals who manage, buy, sell, and rent with confidence through Cribhub's integrated platform and consultancy services. Start your free 14-day trial today.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Button 
@@ -229,7 +229,7 @@ const Index = () => {
                 />
               </div>
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                Empowering property managers with intelligent automation and comprehensive analytics for streamlined operations and exceptional tenant experiences.
+                Empowering property managers with intelligent automation, comprehensive analytics, and professional advisory services for acquisitions, sales, and rentals.
               </p>
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Cribhub. All rights reserved.

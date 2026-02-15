@@ -39,8 +39,11 @@ const About = () => {
                   <p className="text-lg text-muted-foreground leading-relaxed text-justify mb-6">
                     Together, we are transforming and elevating the virtual valuation and management of real estate markets — from underserved regions to highly developed environments.
                   </p>
-                  <p className="text-lg text-muted-foreground leading-relaxed text-justify">
+                  <p className="text-lg text-muted-foreground leading-relaxed text-justify mb-6">
                     Our mission is to empower property managers, landlords, and tenants with intelligent tools that simplify operations, enhance communication, and drive business growth through data-driven insights.
+                  </p>
+                  <p className="text-lg text-muted-foreground leading-relaxed text-justify">
+                    Beyond management, we offer end-to-end consultancy services — guiding clients through property acquisitions, sales, and rentals with expert market valuations, due diligence support, and tailored property recommendations.
                   </p>
                 </div>
                 <div className="mt-12 pt-8 border-t border-border/50">
@@ -77,7 +80,7 @@ const About = () => {
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Our Vision</h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  To become the leading property management platform that connects landlords, property managers, and tenants in a seamless digital ecosystem.
+                  To become the leading property management and advisory platform that connects landlords, property managers, buyers, and tenants in a seamless digital ecosystem.
                 </p>
               </div>
               
@@ -86,7 +89,7 @@ const About = () => {
                   <CardContent className="p-8">
                     <h3 className="text-xl font-bold text-foreground mb-4">For Property Owners</h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      We provide comprehensive tools to manage your properties efficiently, track revenue, handle tenant relationships, and ensure legal compliance—all from one intuitive dashboard.
+                      We provide comprehensive tools to manage your properties efficiently, track revenue, handle tenant relationships, and ensure legal compliance. Our advisory team also supports acquisitions and disposals with market valuations and due diligence.
                     </p>
                   </CardContent>
                 </Card>
@@ -95,7 +98,7 @@ const About = () => {
                   <CardContent className="p-8">
                     <h3 className="text-xl font-bold text-foreground mb-4">For Tenants</h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      We offer a transparent, user-friendly portal where tenants can pay rent, submit maintenance requests, access documents, and communicate directly with property managers.
+                      We offer a transparent, user-friendly portal where tenants can pay rent, submit maintenance requests, and access documents. Looking to buy or rent? Our consultancy-driven search helps you find the perfect property with expert guidance.
                     </p>
                   </CardContent>
                 </Card>
