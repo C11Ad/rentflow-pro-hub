@@ -122,10 +122,10 @@ const Features = () => {
                     <Home className="h-7 w-7 text-accent-green-foreground" />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-3">
-                    Property Sales
+                    Sales & Acquisitions Advisory
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-justify">
-                    List properties for sale with detailed specifications, high-quality imagery, and integrated mortgage calculators. Connect buyers and sellers through a streamlined marketplace with virtual viewing requests and secure transaction facilitation.
+                    Navigate property transactions with confidence through our end-to-end consultancy services. From market valuation and buyer-seller matchmaking to mortgage facilitation and due diligence, we guide every step of the acquisition or disposal process to ensure informed, profitable decisions.
                   </p>
                 </CardContent>
               </Card>
@@ -136,10 +136,10 @@ const Features = () => {
                     <Search className="h-7 w-7 text-accent-foreground" />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-3">
-                    Property Scouting
+                    Property Search & Consultancy
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-justify">
-                    Discover available rentals and properties for sale with advanced search filters, interactive map views, and neighbourhood insights. Schedule virtual viewings and submit applications directly from the platform for a seamless property hunt.
+                    Whether you're looking to rent or buy, our consultancy-driven search platform pairs advanced filters and interactive maps with expert guidance. Schedule virtual viewings, receive tailored property recommendations, and leverage neighbourhood insights to find the perfect space for your needs.
                   </p>
                 </CardContent>
               </Card>
