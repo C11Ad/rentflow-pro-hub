@@ -143,13 +143,15 @@ const Auth = () => {
         description: `Logged in as ${loginRole.replace('_', ' ')}`,
       });
       
+      // Navigate and return — don't reset loading after navigation
       if (loginRole === "landlord") {
-        navigate("/landlord-dashboard");
+        navigate("/landlord-dashboard", { replace: true });
       } else if (loginRole === "property_manager") {
-        navigate("/manager-dashboard");
+        navigate("/manager-dashboard", { replace: true });
       } else {
-        navigate("/tenant-portal");
+        navigate("/tenant-portal", { replace: true });
       }
+      return;
     }
 
     setLoading(false);
@@ -273,6 +275,9 @@ const Auth = () => {
     }
 
     if (authData.user) {
+      // Check if email confirmation is required (user not yet confirmed)
+      const emailConfirmed = authData.user.confirmed_at || authData.session;
+
       // Update profile with additional data
       const updateData: Record<string, string> = {};
       if (signupPhone) updateData.phone = signupPhone;
@@ -321,13 +326,29 @@ const Auth = () => {
         },
       }).catch(console.error);
 
-      toast({
-        title: "🎉 Account Created!",
-        description: "Welcome to Cribhub! You're now logged in.",
-      });
-
-      // Navigate to dashboard
-      navigate("/dashboard");
+      if (emailConfirmed) {
+        // User is immediately confirmed — navigate to dashboard
+        toast({
+          title: "🎉 Account Created!",
+          description: "Welcome to Cribhub! You're now logged in.",
+        });
+        navigate("/dashboard", { replace: true });
+      } else {
+        // Email confirmation required — prompt user
+        toast({
+          title: "🎉 Account Created!",
+          description: "Please check your email to verify your account before logging in.",
+        });
+        setSignupStep(1);
+        setActiveTab("login");
+        // Clear signup form
+        setSignupEmail("");
+        setSignupPassword("");
+        setSignupName("");
+        setSignupPhone("");
+        setSignupNationalId("");
+        setVerificationNotes("");
+      }
     }
 
     setLoading(false);
