@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart3, FileText, Shield, TrendingUp, Users, Zap, Star } from "lucide-react";
+import { BarChart3, FileText, Shield, TrendingUp, Users, Zap, Star, Home, Search } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { PageTransition } from "@/components/PageTransition";
 
@@ -112,6 +112,34 @@ const Features = () => {
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-justify">
                     Protect sensitive data with bank-level encryption, maintain compliance with rental regulations, and leverage SOC 2 Type II certified infrastructure that ensures your operations meet the highest security standards.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/50 shadow-card hover:shadow-elegant transition-all duration-500 hover:-translate-y-2 bg-card rounded-2xl group hover:border-accent-green/30 card-interactive">
+                <CardContent className="pt-8 pb-8 px-6">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-accent-green to-accent-green/80 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <Home className="h-7 w-7 text-accent-green-foreground" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-foreground mb-3">
+                    Property Sales
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-justify">
+                    List properties for sale with detailed specifications, high-quality imagery, and integrated mortgage calculators. Connect buyers and sellers through a streamlined marketplace with virtual viewing requests and secure transaction facilitation.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/50 shadow-card hover:shadow-elegant transition-all duration-500 hover:-translate-y-2 bg-card rounded-2xl group hover:border-accent/30 card-interactive">
+                <CardContent className="pt-8 pb-8 px-6">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <Search className="h-7 w-7 text-accent-foreground" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-foreground mb-3">
+                    Property Scouting
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-justify">
+                    Discover available rentals and properties for sale with advanced search filters, interactive map views, and neighbourhood insights. Schedule virtual viewings and submit applications directly from the platform for a seamless property hunt.
                   </p>
                 </CardContent>
               </Card>
