@@ -22,6 +22,13 @@ const passwordSchema = z.string().min(6, "Password must be at least 6 characters
 const nameSchema = z.string().trim().min(1, "Name is required").max(100);
 const phoneSchema = z.string().regex(/^\+\d{10,15}$/, "Phone must be in international format (e.g., +233501234567)").optional().or(z.literal(""));
 
+// Use VITE_APP_URL in production so verification/password-reset links point to your app, not localhost
+const getRedirectBase = () => {
+  const envUrl = import.meta.env.VITE_APP_URL;
+  if (envUrl) return String(envUrl).replace(/\/$/, "");
+  return window.location.origin;
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -176,7 +183,7 @@ const Auth = () => {
     setLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${getRedirectBase()}/reset-password`,
     });
 
     if (error) {
@@ -240,7 +247,7 @@ const Auth = () => {
       email: signupEmail,
       password: signupPassword,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${getRedirectBase()}/`,
         data: {
           full_name: signupName,
           phone: signupPhone,
