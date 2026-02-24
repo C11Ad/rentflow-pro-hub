@@ -81,6 +81,11 @@ const TenantPortal = () => {
   });
   const [tenantUnit, setTenantUnit] = useState<TenantUnit | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [landlordInfo, setLandlordInfo] = useState<{
+    full_name: string | null;
+    email: string;
+    phone: string | null;
+  } | null>(null);
   
   // Use the maintenance requests hook
   const { requests: maintenanceRequests, loading: requestsLoading, submitRequest, refetch } = useMaintenanceRequests({
@@ -93,7 +98,7 @@ const TenantPortal = () => {
     const fetchTenantData = async () => {
       if (!user?.id) return;
       
-      // Fetch unit
+      // Fetch unit with property and landlord info
       const { data: unitData, error: unitError } = await supabase
         .from("units")
         .select(`
@@ -103,7 +108,7 @@ const TenantPortal = () => {
           rent_currency,
           lease_start,
           lease_end,
-          property:properties(name)
+          property:properties(name, landlord_id)
         `)
         .eq("tenant_id", user.id)
         .maybeSingle();
@@ -136,6 +141,20 @@ const TenantPortal = () => {
           hours: Math.floor((nextDue.getTime() - today.getTime()) / (1000 * 60 * 60)) % 24,
           minutes: Math.floor((nextDue.getTime() - today.getTime()) / (1000 * 60)) % 60
         });
+
+        // Fetch landlord profile
+        const landlordId = (unitData.property as any)?.landlord_id;
+        if (landlordId) {
+          const { data: landlordProfile } = await supabase
+            .from("profiles")
+            .select("full_name, email, phone")
+            .eq("id", landlordId)
+            .maybeSingle();
+          
+          if (landlordProfile) {
+            setLandlordInfo(landlordProfile);
+          }
+        }
       }
       
       // Fetch contracts
@@ -889,49 +908,50 @@ This is an official document from CribHub Property Management.
               </CardContent>
             </Card>
 
-            {/* Property Manager Contact */}
+            {/* Landlord Contact */}
             <Card className="border-border/50 shadow-card hover:shadow-elegant transition-all duration-300 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5">
               <CardHeader>
                 <CardTitle className="text-foreground text-2xl font-bold flex items-center gap-2">
                   <User className="h-6 w-6 text-primary" />
-                  Property Manager Contact
+                  Landlord Contact
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-4">John Smith</h4>
+                {landlordInfo ? (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-foreground mb-4">{landlordInfo.full_name || "Your Landlord"}</h4>
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="p-2 rounded-lg bg-accent/20">
-                          <Phone className="h-4 w-4 text-accent" />
+                      {landlordInfo.phone && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="p-2 rounded-lg bg-accent/20">
+                            <Phone className="h-4 w-4 text-accent" />
+                          </div>
+                          <span className="text-muted-foreground">{landlordInfo.phone}</span>
                         </div>
-                        <span className="text-muted-foreground">(555) 123-4567</span>
-                      </div>
+                      )}
                       <div className="flex items-center gap-3 text-sm">
                         <div className="p-2 rounded-lg bg-accent/20">
                           <Mail className="h-4 w-4 text-accent" />
                         </div>
-                        <span className="text-muted-foreground">john.smith@sunsetapts.com</span>
+                        <span className="text-muted-foreground">{landlordInfo.email}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="p-2 rounded-lg bg-accent/20">
-                          <Home className="h-4 w-4 text-accent" />
+                      {leaseInfo?.property && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="p-2 rounded-lg bg-accent/20">
+                            <Home className="h-4 w-4 text-accent" />
+                          </div>
+                          <span className="text-muted-foreground">{leaseInfo.property}</span>
                         </div>
-                        <span className="text-muted-foreground">Sunset Apartments Office</span>
-                      </div>
+                      )}
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-foreground mb-4">Office Hours</h4>
-                    <p className="text-sm text-muted-foreground">Monday - Friday: 9 AM - 6 PM</p>
-                    <p className="text-sm text-muted-foreground">Saturday: 10 AM - 4 PM</p>
-                    <p className="text-sm text-muted-foreground">Sunday: Closed</p>
-                    <p className="text-sm text-destructive font-medium mt-4">
-                      Emergency Line: (555) 999-0000
-                    </p>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <User className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">No landlord assigned yet</p>
+                    <p className="text-xs mt-1">Contact details will appear once you are assigned to a property.</p>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
